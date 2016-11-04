@@ -1,6 +1,8 @@
 package com.example.coffee;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpMethod;
@@ -12,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@RefreshScope
 @RequestMapping("/coffees")
 @RestController
 public class CoffeeController {
@@ -39,6 +42,15 @@ public class CoffeeController {
 			.stream()
 			.map(Coffee::getName)
 			.collect(Collectors.toList());
+	}
+
+
+	@Value("${coffee.favorite:nothing}")
+	private String favoriteCoffee;
+
+	@RequestMapping(path = "/favorite", method = RequestMethod.GET)
+	public String getFavoriteCoffee() {
+		return favoriteCoffee;
 	}
 
 }

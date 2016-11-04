@@ -1,5 +1,6 @@
 package com.example.coffee;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RefreshScope
 @RequestMapping("/coffees")
@@ -22,6 +24,7 @@ public class CoffeeController {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@HystrixCommand(fallbackMethod = "getDefaultNames")
 	@RequestMapping(path = "/names-hateoas", method = RequestMethod.GET)
 	public Collection<String> getNamesHateoas() {
 		ParameterizedTypeReference<Resources<Coffee>> typeReference = new ParameterizedTypeReference<Resources<Coffee>>() {
@@ -36,12 +39,17 @@ public class CoffeeController {
 	@Autowired
 	private CoffeeClient coffeeClient;
 
+	@HystrixCommand(fallbackMethod = "getDefaultNames")
 	@RequestMapping(path = "/names-feign", method = RequestMethod.GET)
 	public Collection<String> getNamesFeign() {
 		return coffeeClient.getCoffees().getContent()
 			.stream()
 			.map(Coffee::getName)
 			.collect(Collectors.toList());
+	}
+
+	public Collection<String> getDefaultNames() {
+		return Stream.of("hello", "world").collect(Collectors.toList());
 	}
 
 

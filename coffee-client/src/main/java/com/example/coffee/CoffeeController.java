@@ -7,6 +7,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +60,15 @@ public class CoffeeController {
 	@RequestMapping(path = "/favorite", method = RequestMethod.GET)
 	public String getFavoriteCoffee() {
 		return favoriteCoffee;
+	}
+
+
+	@Autowired
+	private CoffeeOrder coffeeOrder;
+
+	@RequestMapping(path = "/order", method = RequestMethod.POST)
+	public void order(@RequestBody String name) {
+		coffeeOrder.order(name);
 	}
 
 }

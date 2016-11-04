@@ -12,17 +12,30 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@RequestMapping("/coffees")
 @RestController
 public class CoffeeController {
 
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@RequestMapping(path = "/names", method = RequestMethod.GET)
-	public Collection<String> getNamesHATEOAS() {
+	@RequestMapping(path = "/names-hateoas", method = RequestMethod.GET)
+	public Collection<String> getNamesHateoas() {
 		ParameterizedTypeReference<Resources<Coffee>> typeReference = new ParameterizedTypeReference<Resources<Coffee>>() {
 		};
 		return restTemplate.exchange("http://coffee-server/coffees", HttpMethod.GET, null, typeReference).getBody().getContent()
+			.stream()
+			.map(Coffee::getName)
+			.collect(Collectors.toList());
+	}
+
+
+	@Autowired
+	private CoffeeClient coffeeClient;
+
+	@RequestMapping(path = "/names-feign", method = RequestMethod.GET)
+	public Collection<String> getNamesFeign() {
+		return coffeeClient.getCoffees().getContent()
 			.stream()
 			.map(Coffee::getName)
 			.collect(Collectors.toList());
